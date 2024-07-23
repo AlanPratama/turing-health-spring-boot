@@ -22,6 +22,6 @@ public class Region {
     private String name;
     
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE)
     private List<User> users;
 }
