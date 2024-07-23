@@ -32,7 +32,7 @@ public class User {
 
     private Role role;
 
-    @OneToMany(mappedBy = "users")
+    @ManyToOne
     private Region region;
 }
 // BUSSIAT
