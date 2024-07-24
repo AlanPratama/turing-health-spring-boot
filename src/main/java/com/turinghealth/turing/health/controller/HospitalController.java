@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.turinghealth.turing.health.service.HospitalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ public class HospitalController {
     private final HospitalService hospitalService;
 
     @GetMapping
-    public ResponseEntity<?> getHospitals(){
+    public ResponseEntity<?> getHospitals() throws JsonProcessingException {
         return ResponseEntity.ok(hospitalService.getHospitals());
     }
 }
