@@ -4,15 +4,20 @@ import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.service.RegionService;
 import com.turinghealth.turing.health.utils.dto.regionDTO.RegionRequestDTO;
 import com.turinghealth.turing.health.utils.dto.regionDTO.RegionResponseDTO;
+import com.turinghealth.turing.health.utils.mapper.ErrorsMapper;
 import com.turinghealth.turing.health.utils.response.PaginationResponse;
 import com.turinghealth.turing.health.utils.response.Response;
+import com.turinghealth.turing.health.utils.response.WebResponseError;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,7 +28,13 @@ public class RegionController {
     private final RegionService regionService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody RegionRequestDTO request){
+    @Validated
+    public ResponseEntity<?> create(@Valid @RequestBody RegionRequestDTO request, Errors errors){
+        if (errors.hasErrors()){
+            WebResponseError<?> responseError = ErrorsMapper.renderErrors("There's a problem when creating region",errors);
+            return ResponseEntity.status(responseError.getStatus()).body(responseError);
+        }
+
         return Response.renderJson(
                 regionService.create(request),
                 "Region has been created",
@@ -55,7 +66,13 @@ public class RegionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody RegionRequestDTO request, @PathVariable Integer id){
+    @Validated
+    public ResponseEntity<?> update(@Valid @RequestBody RegionRequestDTO request,Errors errors, @PathVariable Integer id){
+        if (errors.hasErrors()){
+            WebResponseError<?> responseError = ErrorsMapper.renderErrors("There's a problem when updating region",errors);
+            return ResponseEntity.status(responseError.getStatus()).body(responseError);
+        }
+
         return Response.renderJson(
                 regionService.update(request,id),
                 "Region updated",
