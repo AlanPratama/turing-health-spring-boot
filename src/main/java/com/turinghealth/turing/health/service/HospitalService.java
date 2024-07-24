@@ -1,10 +1,18 @@
 package com.turinghealth.turing.health.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalDTO;
+import com.turinghealth.turing.health.entity.meta.Hospital;
+import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalDTOResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface HospitalService {
-    List<HospitalDTO> getHospitals() throws JsonProcessingException;
+    void hospitalSeeder() throws JsonProcessingException;
+    Hospital create (Hospital request);
+    Page<HospitalDTOResponse> getAll(Pageable pageable, String name, String address, String Region);
+    Hospital getOne(Integer id);
+    Hospital update(Hospital request, Integer id);
+    void delete(Integer id);
 }

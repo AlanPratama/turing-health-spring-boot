@@ -8,16 +8,15 @@ import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.repository.HospitalRepository;
 import com.turinghealth.turing.health.repository.RegionRepository;
 import com.turinghealth.turing.health.service.HospitalService;
-import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalDTO;
-import com.turinghealth.turing.health.utils.mapper.HospitalMapper;
+import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalDTOResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -32,12 +31,9 @@ public class HospitalServiceImpl implements HospitalService {
         public static String gmapUrl = "https://www.google.com/maps/place?q=";
     
         @Override
-        public List<HospitalDTO> getHospitals() throws JsonProcessingException {
+        public void hospitalSeeder() throws JsonProcessingException {
             String response = restTemplate.getForObject(
                     UriComponentsBuilder.fromHttpUrl(baseUrl).toUriString(), String.class);
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            HospitalDTO[] hospitalDTOs = objectMapper.readValue(response, HospitalDTO[].class);
 
             try {
                 ObjectMapper objectMapper2 = new ObjectMapper();
@@ -74,8 +70,40 @@ public class HospitalServiceImpl implements HospitalService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-            return null;
         }
+
+    @Override
+    public Hospital create(Hospital request) {
+        Hospital hospital = Hospital.builder()
+                .name(request.getName())
+                .gmap(gmapUrl+request.getName())
+                .address(request.getAddress())
+                .region(request.getRegion())
+                .phone(request.getPhone())
+                .province(request.getProvince())
+                .build();
+
+        return hospitalRepository.save(hospital);
+    }
+
+    @Override
+    public Page<HospitalDTOResponse> getAll(Pageable pageable, String name, String address, String Region) {
+//             Specification<Hospital> spec =
+        return null;
+        }
+
+    @Override
+    public Hospital getOne(Integer id) {
+        return null;
+    }
+
+    @Override
+    public Hospital update(Hospital request, Integer id) {
+        return null;
+    }
+
+    @Override
+    public void delete(Integer id) {
+
+    }
 }
