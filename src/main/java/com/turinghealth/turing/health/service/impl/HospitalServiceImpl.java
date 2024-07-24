@@ -12,9 +12,11 @@ import lombok.Setter;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -28,12 +30,15 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public HospitalDTO getHospitals() {
-        String response = restClient.get()
-                .uri(UriComponentsBuilder.fromHttpUrl(baseUrl).toUriString(),
-                        UriBuilder::build).retrieve()
-                .body(String.class);
+//        String response = restClient.get()
+//                .uri(UriComponentsBuilder.fromHttpUrl(baseUrl).toUriString(),
+//                        UriBuilder::build).retrieve()
+//                .body(String.class);
 
-        System.out.println(response);
+        RestTemplate restTemplate = new RestTemplate();
+        Hospital[] hospitals = restTemplate.getForObject(baseUrl, Hospital[].class);
+        List<?> hospitalList = Arrays.asList(hospitals);
+        System.out.println(hospitalList);
 
 //        if (hospitalDTO.getHospitalList().isEmpty()){
 //            throw new RuntimeException("wut da hell");
