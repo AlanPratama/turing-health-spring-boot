@@ -16,5 +16,5 @@ import java.util.List;
 @Setter
 public class HospitalDTO<T> {
     @JsonProperty("")
-    List<T> hospitalList;
+    List<Hospital> hospitalList;
 }
