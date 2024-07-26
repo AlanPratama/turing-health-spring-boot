@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,15 +27,15 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data", path = "/uploadfile")
     @Validated
-    public ResponseEntity<?> create(@Valid @RequestBody UserRequestDTO request, Errors errors) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute UserRequestDTO request, Errors errors, @RequestPart("file") MultipartFile multipartFile) throws IOException {
         if (errors.hasErrors()) {
             WebResponseError<?> responseError = ErrorsMapper.renderErrors("Create User Failed!", errors);
             return ResponseEntity.status(responseError.getStatus()).body(responseError);
         }
 
-        return Response.renderJson(userService.create(request), "User Has Been Created!", HttpStatus.OK);
+        return Response.renderJson(userService.create(request, multipartFile), "User Has Been Created!", HttpStatus.OK);
     }
 
     @GetMapping

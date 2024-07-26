@@ -22,6 +22,7 @@ public class User {
     private String nik;
     private String phone;
     private String address;
+    private String userImageLink;
 
     @Column(nullable = false)
     private String email;

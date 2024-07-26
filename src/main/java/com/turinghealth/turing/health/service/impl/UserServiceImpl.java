@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.service.impl;
 
+import com.cloudinary.Cloudinary;
 import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.entity.meta.User;
@@ -19,8 +20,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,19 +36,31 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
     private final PasswordEncoder passwordEncoder;
-    
+    private final Cloudinary cloudinary;
+
     @Override
-    public UserResponseDTO create(UserRequestDTO request) {
+    public UserResponseDTO create(UserRequestDTO request, MultipartFile multipartFile) throws IOException {
         Region region = regionRepository.findById(request.getRegionId()).orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
-        
+
+        File convFile = new File( multipartFile.getOriginalFilename() );
+        FileOutputStream fos = new FileOutputStream( convFile );
+        fos.write( multipartFile.getBytes() );
+        fos.close();
+
+        String photo = cloudinary.uploader()
+                .upload(convFile, Map.of("profile"+request.getName(), UUID.randomUUID().toString()))
+                .get("url")
+                .toString();
+
         User user = User.builder()
                 .name(request.getName())        
                 .nik(request.getNik())
                 .phone(request.getPhone())
                 .address(request.getAddress())
+                .userImageLink(photo)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role(Role.valueOf(request.getRole()))
                 .region(region)
                 .build();
         
