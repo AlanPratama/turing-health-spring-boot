@@ -8,9 +8,15 @@ import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.repository.HospitalRepository;
 import com.turinghealth.turing.health.repository.RegionRepository;
 import com.turinghealth.turing.health.service.HospitalService;
-import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalDTOResponse;
+import com.turinghealth.turing.health.service.RegionService;
+import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalRequestDTO;
+import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalResponseDTO;
+import com.turinghealth.turing.health.utils.dto.regionDTO.RegionRequestDTO;
+import com.turinghealth.turing.health.utils.specification.HospitalSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -18,12 +24,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HospitalServiceImpl implements HospitalService {
         private final HospitalRepository hospitalRepository;
         private final RegionRepository regionRepository;
+        private final RegionService regionService;
 //        private final RestClient restClient;
         private final RestTemplate restTemplate;
 
@@ -73,12 +81,14 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
     @Override
-    public Hospital create(Hospital request) {
+    public Hospital create(HospitalRequestDTO request) {
+            Region region = regionService.getOne(request.getRegionId());
+
         Hospital hospital = Hospital.builder()
                 .name(request.getName())
                 .gmap(gmapUrl+request.getName())
                 .address(request.getAddress())
-                .region(request.getRegion())
+                .region(region)
                 .phone(request.getPhone())
                 .province(request.getProvince())
                 .build();
@@ -87,23 +97,57 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public Page<HospitalDTOResponse> getAll(Pageable pageable, String name, String address, String Region) {
-//             Specification<Hospital> spec =
-        return null;
-        }
+    public Page<HospitalResponseDTO> getAll(
+            Pageable pageable,
+            String name,
+            String province,
+            Integer regionId){
 
-    @Override
-    public Hospital getOne(Integer id) {
-        return null;
+            Region region = null;
+            if (regionId != null) region = regionRepository.findById(regionId).orElseThrow();
+
+        Specification<Hospital> specHospital = HospitalSpecification.getSpecification(name, province, region);
+        Page<Hospital> hospitalPage = hospitalRepository.findAll(specHospital, pageable);
+
+        List<HospitalResponseDTO> hospitalDTOResponses = hospitalPage.stream()
+                .map(hospital -> HospitalResponseDTO.builder()
+                        .id(hospital.getId())
+                        .name(hospital.getName())
+                        .address(hospital.getAddress())
+                        .region(hospital.getRegion())
+                        .phone(hospital.getPhone())
+                        .province(hospital.getProvince())
+                        .gmap(hospital.getGmap())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(hospitalDTOResponses, pageable, hospitalPage.getTotalElements());
     }
 
     @Override
-    public Hospital update(Hospital request, Integer id) {
-        return null;
+    public Hospital getOne(Integer id) {
+        return hospitalRepository.findById(id).orElseThrow(()-> new NotFoundException("Hospital with "+id+" isn't found" ));
+    }
+
+    @Override
+    public Hospital update(HospitalRequestDTO request, Integer id) {
+        Region region = regionService.getOne(request.getRegionId());
+        Hospital hospital = hospitalRepository.getOne(id);
+
+        hospital.setName(request.getName());
+        hospital.setAddress(request.getAddress());
+        hospital.setGmap(gmapUrl+request.getName());
+        hospital.setProvince(request.getProvince());
+        hospital.setRegion(region);
+        hospital.setPhone(request.getPhone());
+
+        return hospitalRepository.save(hospital);
     }
 
     @Override
     public void delete(Integer id) {
+        Hospital hospital = hospitalRepository.findById(id).orElseThrow(()-> new NotFoundException("Hospital with "+id+" isn't found" ));
 
+        hospitalRepository.delete(hospital);
     }
 }

@@ -46,10 +46,8 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public RegionResponseDTO getOne(Integer id) {
-        Region region = regionRepository.findById(id).orElseThrow(() -> new NotFoundException("Region With ID " + id + " Is Not Found!"));
-        
-        return RegionMapper.regionResponseDTO(region);
+    public Region getOne(Integer id) {
+        return regionRepository.findById(id).orElseThrow(() -> new NotFoundException("Region With ID " + id + " Is Not Found!"));
     }
 
     @Override
