@@ -60,16 +60,21 @@ public class UserController {
         );
     }
 
-    @PutMapping("{id}")
+    @PutMapping(value = "{id}", consumes = "multipart/form-data")
     @Validated
-    public ResponseEntity<?> update(@Valid @RequestBody UserUpdateDTO request, Errors errors, @PathVariable Integer id) {
+    public ResponseEntity<?> update(
+            @Valid @ModelAttribute UserUpdateDTO request,
+            Errors errors,
+            @PathVariable Integer id,
+            @RequestPart("file") MultipartFile multipartFile
+    ) throws IOException {
         if (errors.hasErrors()) {
             WebResponseError<?> responseError = ErrorsMapper.renderErrors("Update User Failed!", errors);
             return ResponseEntity.status(responseError.getStatus()).body(responseError);
         }
 
         return Response.renderJson(
-                userService.update(request, id),
+                userService.update(request, id, multipartFile),
                 "User Has Been Update",
                 HttpStatus.OK
         );

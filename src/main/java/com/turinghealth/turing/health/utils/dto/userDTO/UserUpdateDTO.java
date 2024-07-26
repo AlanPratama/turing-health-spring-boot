@@ -2,6 +2,7 @@ package com.turinghealth.turing.health.utils.dto.userDTO;
 
 import com.turinghealth.turing.health.entity.enums.Role;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -25,7 +26,7 @@ public class UserUpdateDTO {
     @NotBlank(message = "Email Cannot Be Blank")
     private String email;
 
-    @NotBlank(message = "Region Cannot Be Blank")
+    @NotNull(message = "Region Cannot Be Blank")
     private Integer regionId;
 
     private Role role;
