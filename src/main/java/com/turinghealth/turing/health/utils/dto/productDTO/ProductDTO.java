@@ -1,6 +1,9 @@
 package com.turinghealth.turing.health.utils.dto.productDTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @Getter
@@ -10,8 +13,11 @@ import lombok.*;
 @Builder
 public class ProductDTO {
     private String name;
-    private Integer price;
+    private Double price;
     private String description;
     private String imageLink;
     private Integer categoryId;
+
+    @JsonProperty("data_product")
+    private List<ProductResponse> dataProduct;
 }
