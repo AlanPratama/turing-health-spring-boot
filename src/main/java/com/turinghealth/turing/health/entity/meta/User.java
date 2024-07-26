@@ -18,9 +18,11 @@ public class User {
     
     @Column(nullable = false)
     private String name;
-    
-    private String nik;
+
+    @Column(nullable = false)
     private String phone;
+
+    private String nik;
     private String address;
     private String userImageLink;
 
@@ -33,5 +35,7 @@ public class User {
 
     @ManyToOne
     private Region region;
+
+    @ManyToOne
+    private Specialist specialist;
 }
-// BUSSIAT
