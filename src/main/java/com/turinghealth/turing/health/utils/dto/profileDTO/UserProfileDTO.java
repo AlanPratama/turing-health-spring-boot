@@ -4,8 +4,10 @@ import com.turinghealth.turing.health.entity.meta.Region;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserProfileDTO {
 
     @NotBlank(message = "Name Cannot Be Blank!")
@@ -25,4 +27,6 @@ public class UserProfileDTO {
 
     @NotNull(message = "Region Cannot Be Blank!")
     private Region region;
+
+//    private String userImageLink;
 }
