@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
+    public ResponseEntity<?> delete(@PathVariable Integer id) throws IOException{
         userService.delete(id);
 
         return Response.renderJson(

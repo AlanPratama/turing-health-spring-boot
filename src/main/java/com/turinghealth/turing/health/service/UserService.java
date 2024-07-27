@@ -15,5 +15,5 @@ public interface UserService {
     Page<UserResponseDTO> getAll(Pageable pageable, String name, Role role);
     UserResponseDTO getOne(Integer id);
     UserResponseDTO update(UserUpdateDTO request, Integer id, MultipartFile multipartFile) throws IOException;
-    void delete(Integer id);
+    void delete(Integer id) throws IOException;
 }
