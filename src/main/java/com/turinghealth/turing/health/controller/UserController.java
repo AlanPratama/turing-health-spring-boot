@@ -133,7 +133,8 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = { @Content(schema = @Schema()) })
     })
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws IOException {
+
+    public ResponseEntity<?> delete(@PathVariable Integer id) throws IOException{
         userService.delete(id);
 
         return Response.renderJson(

@@ -1,6 +1,7 @@
 package com.turinghealth.turing.health.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.entity.meta.User;
@@ -48,9 +49,14 @@ public class UserServiceImpl implements UserService {
         fos.close();
 
         String photo = cloudinary.uploader()
-                .upload(convFile, Map.of("profile"+request.getName(), UUID.randomUUID().toString()))
+                .upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID(),
+                        "transformation", new Transformation().width(150).height(150).crop("fill").gravity("center")
+                ))
                 .get("url")
                 .toString();
+
+        //delete local photo so only upload via cloudinary
+        convFile.delete();
 
         User user = User.builder()
                 .name(request.getName())        
@@ -106,9 +112,15 @@ public class UserServiceImpl implements UserService {
             fos.write(multipartFile.getBytes());
             fos.close();
 
-            Map uploadResult = cloudinary.uploader().upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID()));
+            Map uploadResult = cloudinary.uploader().upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID(),
+                    "transformation", new Transformation().width(150).height(150).crop("fill").gravity("center")
+            ));
             String newPhotoLink = uploadResult.get("url").toString();
 
+            //delete local photo so only upload via cloudinary
+            convFile.delete();
+
+            // Update the user's image link
             user.setUserImageLink(newPhotoLink);
         }
 
