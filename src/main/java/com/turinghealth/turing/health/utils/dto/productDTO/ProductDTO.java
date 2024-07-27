@@ -18,6 +18,4 @@ public class ProductDTO {
     private String imageLink;
     private Integer categoryId;
 
-    @JsonProperty("data_product")
-    private List<ProductResponse> dataProduct;
 }

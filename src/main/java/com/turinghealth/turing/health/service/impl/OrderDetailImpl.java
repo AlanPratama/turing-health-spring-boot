@@ -2,7 +2,7 @@ package com.turinghealth.turing.health.service.impl;
 
 import com.turinghealth.turing.health.entity.meta.OrderDetail;
 import com.turinghealth.turing.health.service.OrderDetailService;
-import com.turinghealth.turing.health.utils.dto.productDTO.OrderDetailDTO;
+import com.turinghealth.turing.health.utils.dto.orderDetailDTO.OrderDetailDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

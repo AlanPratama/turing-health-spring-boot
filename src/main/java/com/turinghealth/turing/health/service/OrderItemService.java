@@ -1,7 +1,7 @@
 package com.turinghealth.turing.health.service;
 
 import com.turinghealth.turing.health.entity.meta.OrderItem;
-import com.turinghealth.turing.health.utils.dto.productDTO.OrderItemDTO;
+import com.turinghealth.turing.health.utils.dto.orderItemDTO.OrderItemDTO;
 
 import java.util.List;
 

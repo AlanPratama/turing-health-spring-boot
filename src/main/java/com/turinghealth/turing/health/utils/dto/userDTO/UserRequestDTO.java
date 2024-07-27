@@ -34,5 +34,5 @@ public class UserRequestDTO {
     private Integer regionId;
 
     @NotNull(message = "Role Cannot Be Blank")
-    private Role role;
+    private String role;
 }

@@ -2,15 +2,13 @@ package com.turinghealth.turing.health.entity.meta;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -24,4 +22,8 @@ public class Region {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<User> users;
+    
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<Hospital> hospitals;
 }

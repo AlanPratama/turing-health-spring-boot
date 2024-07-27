@@ -3,6 +3,7 @@ package com.turinghealth.turing.health.controller;
 import com.turinghealth.turing.health.entity.meta.Product;
 import com.turinghealth.turing.health.service.ProductService;
 import com.turinghealth.turing.health.utils.dto.productDTO.ProductDTO;
+import com.turinghealth.turing.health.utils.dto.productDTO.ProductResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +26,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAll(){
-        return productService.getAll();
+    public ProductResponseDTO productSeeder(){
+        return productService.productSeeder();
     }
+
 
     @DeleteMapping
     public void deleteById(Integer id){
         productService.delete(id);
     }
+
 
 }

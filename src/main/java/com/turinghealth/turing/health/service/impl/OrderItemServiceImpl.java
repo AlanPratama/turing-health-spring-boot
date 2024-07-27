@@ -6,7 +6,7 @@ import com.turinghealth.turing.health.entity.meta.Product;
 import com.turinghealth.turing.health.repository.OrderItemRepository;
 import com.turinghealth.turing.health.service.OrderItemService;
 import com.turinghealth.turing.health.service.ProductService;
-import com.turinghealth.turing.health.utils.dto.productDTO.OrderItemDTO;
+import com.turinghealth.turing.health.utils.dto.orderItemDTO.OrderItemDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

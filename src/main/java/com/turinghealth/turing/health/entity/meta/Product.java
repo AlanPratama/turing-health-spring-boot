@@ -18,7 +18,7 @@ public class Product {
     private Integer categoryId;
     private String imageLink;
     private String name;
-    private Double price;
+    private String price;
     private String description;
 
     

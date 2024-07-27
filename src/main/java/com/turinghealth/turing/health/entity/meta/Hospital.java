@@ -2,10 +2,7 @@ package com.turinghealth.turing.health.entity.meta;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "hospitals")
+@Builder
 public class Hospital {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +22,7 @@ public class Hospital {
     @ManyToOne
     private Region region;
 
-    private Integer phone;
+    private String phone;
     private String province;
     private String gmap;
-
 }

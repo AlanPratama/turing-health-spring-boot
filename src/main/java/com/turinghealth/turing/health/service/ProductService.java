@@ -3,7 +3,7 @@ package com.turinghealth.turing.health.service;
 
 import com.turinghealth.turing.health.entity.meta.Product;
 import com.turinghealth.turing.health.utils.dto.productDTO.ProductDTO;
-import com.turinghealth.turing.health.utils.dto.productDTO.ProductResponse;
+import com.turinghealth.turing.health.utils.dto.productDTO.ProductResponseDTO;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface ProductService {
     List<Product> getAll();
     Product update(Integer id, ProductDTO request);
     void delete(Integer id);
-    Product getProduct();
+    ProductResponseDTO productSeeder();
 }
