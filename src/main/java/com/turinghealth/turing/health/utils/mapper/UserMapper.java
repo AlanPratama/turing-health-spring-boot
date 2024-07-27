@@ -13,6 +13,7 @@ public class UserMapper {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .email(user.getEmail())
+                .imageLink(user.getUserImageLink())
                 .role(user.getRole())
                 .region(user.getRegion())
                 .build();

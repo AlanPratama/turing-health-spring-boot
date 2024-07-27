@@ -16,6 +16,7 @@ public class UserResponseDTO {
     private String phone;
     private String address;
     private String email;
+    private String imageLink;
     private Role role;
     private Region region;
 }
