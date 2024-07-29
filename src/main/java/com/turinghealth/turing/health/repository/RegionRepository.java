@@ -4,5 +4,8 @@ import com.turinghealth.turing.health.entity.meta.Region;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Optional;
+
 public interface RegionRepository extends JpaRepository<Region, Integer>, JpaSpecificationExecutor<Region> {
+    Optional<Region> findByName(String name);
 }

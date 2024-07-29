@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,10 +56,18 @@ public class HospitalServiceImpl implements HospitalService {
                         String region = hospitalNode.path("region").asText();
                         String phone = hospitalNode.path("phone").asText();
                         String province = hospitalNode.path("province").asText();
-                        
-                        Region newRegion = Region.builder()
-                                .name(region)
-                                .build();
+
+
+                        Optional<Region> ifRegionExists = regionRepository.findByName(region);
+                        Region newRegion;
+
+                        if (ifRegionExists.isPresent()){
+                            newRegion = ifRegionExists.get();
+                        } else {
+                            newRegion = Region.builder()
+                                    .name(region)
+                                    .build();
+                        }
                         
                         Region createdRegion = regionRepository.save(newRegion);
                         
