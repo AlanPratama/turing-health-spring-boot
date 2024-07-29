@@ -36,7 +36,6 @@ public class AddressUserServiceImpl implements AddressUserService {
                 .buyerName(request.getBuyerName())
                 .buyerPhone(request.getBuyerPhone())
                 .city(request.getCity())
-                .region(request.getRegion())
                 .posCode(request.getPosCode())
                 .addressDetail(request.getAddressDetail())
                 .fixPoint(request.getFixPoint())
@@ -81,7 +80,6 @@ public class AddressUserServiceImpl implements AddressUserService {
         addressUser.setBuyerName(request.getBuyerName());
         addressUser.setBuyerPhone(request.getBuyerPhone());
         addressUser.setCity(request.getCity());
-        addressUser.setRegion(request.getRegion());
         addressUser.setPosCode(request.getPosCode());
         addressUser.setAddressDetail(request.getAddressDetail());
         addressUser.setFixPoint(request.getFixPoint());
