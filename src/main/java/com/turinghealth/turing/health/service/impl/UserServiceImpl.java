@@ -101,16 +101,12 @@ public class UserServiceImpl implements UserService {
         Region region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
 
-        // Check if there's a new image in the request
         if (multipartFile != null && !multipartFile.isEmpty()) {
-            // Get the public ID of the existing image
             String oldImageLink = user.getUserImageLink();
             String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf('/') + 1, oldImageLink.lastIndexOf('.'));
 
-            // Delete the existing image from Cloudinary
             cloudinary.uploader().destroy(oldPublicId, Map.of());
 
-            // Upload the new image to Cloudinary
             File convFile = new File(multipartFile.getOriginalFilename());
             FileOutputStream fos = new FileOutputStream(convFile);
             fos.write(multipartFile.getBytes());
@@ -144,12 +140,15 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void delete(Integer id) throws IOException{
+    public void delete(Integer id) throws IOException {
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
 
-        String oldImageLink = user.getUserImageLink();
-        String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf('/') + 1, oldImageLink.lastIndexOf('.'));
-        cloudinary.uploader().destroy(oldPublicId, Map.of());
+        if (!user.getUserImageLink().isEmpty()) {
+            String oldImageLink = user.getUserImageLink();
+            String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf('/') + 1, oldImageLink.lastIndexOf('.'));
+
+            cloudinary.uploader().destroy(oldPublicId, Map.of());
+        }
 
         userRepository.delete(user);
     }

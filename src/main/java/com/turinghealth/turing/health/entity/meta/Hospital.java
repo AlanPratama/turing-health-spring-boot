@@ -25,5 +25,4 @@ public class Hospital {
     private String phone;
     private String province;
     private String gmap;
-
 }
