@@ -2,6 +2,7 @@ package com.turinghealth.turing.health.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turinghealth.turing.health.configuration.JwtService;
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.enums.TokenType;
 import com.turinghealth.turing.health.entity.meta.Token;
 import com.turinghealth.turing.health.entity.meta.User;
@@ -65,6 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .phone(request.getPhone())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.MEMBER)
                 .build();
 
         User createdUser = userRepository.save(user);
