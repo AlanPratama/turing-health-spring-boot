@@ -21,7 +21,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer categoryId;
     private String imageLink;
 
     @Column(nullable = false)
@@ -35,7 +34,8 @@ public class Product {
 
 
     // =========== RELATIONAL ===============
-
+    @ManyToOne
+    private Category category;
 
     // CHILDREN
 //    @OneToMany
