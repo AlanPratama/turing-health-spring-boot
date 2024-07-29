@@ -1,6 +1,7 @@
 package com.turinghealth.turing.health.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.ProfileService;
@@ -60,7 +61,10 @@ public class ProfileServiceImpl implements ProfileService {
             fos.write(multipartFile.getBytes());
             fos.close();
 
-            Map uploadResult = cloudinary.uploader().upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID()));
+            Map uploadResult = cloudinary.uploader().upload(
+                    convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID(),
+                    "transformation", new Transformation().width(150).height(150).crop("fill").gravity("center")
+            ));
             String newPhotoLink = uploadResult.get("url").toString();
 
             user.setUserImageLink(newPhotoLink);

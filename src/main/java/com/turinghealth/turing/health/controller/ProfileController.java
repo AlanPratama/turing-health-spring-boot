@@ -88,7 +88,7 @@ public class ProfileController {
     @PatchMapping("/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO request, Errors errors) {
         if (errors.hasErrors()) {
-            WebResponseError<?> mapErrors = ErrorsMapper.renderErrors("Update Profile Failed!", errors);
+            WebResponseError<?> mapErrors = ErrorsMapper.renderErrors("Change Password Failed!", errors);
 
             return ResponseEntity.status(mapErrors.getStatus()).body(mapErrors);
         }
