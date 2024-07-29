@@ -49,7 +49,7 @@ public class RegionServiceTest {
         name = "name";
         regionId = 1;
 
-        regionRequestDTO = new RegionRequestDTO("Test Region");
+        regionRequestDTO = new RegionRequestDTO("Test Region2");
 
         region = new Region();
             region.setId(regionId);
@@ -71,8 +71,6 @@ public class RegionServiceTest {
 
     @Test
     public void createRegion_Success(){
-        region = new Region();
-        region.setName("Test Region");
         RegionResponseDTO expectedResponse = new RegionResponseDTO(region.getId(), region.getName());
 
         when(regionRepository.save(any(Region.class))).thenReturn(region);
