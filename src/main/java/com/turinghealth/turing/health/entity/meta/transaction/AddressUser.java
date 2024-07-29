@@ -27,9 +27,6 @@ public class AddressUser {
     private String city;
 
     @Column(nullable = false)
-    private String region;
-
-    @Column(nullable = false)
     private String posCode;
 
     @Column(nullable = false)

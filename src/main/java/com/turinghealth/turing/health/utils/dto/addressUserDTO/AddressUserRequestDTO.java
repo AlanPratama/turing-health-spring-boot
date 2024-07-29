@@ -17,9 +17,6 @@ public class AddressUserRequestDTO {
     @NotBlank(message = "City Cannot Be Null!")
     private String city;
 
-    @NotBlank(message = "Region Cannot Be Null!")
-    private String region;
-
     @NotBlank(message = "Pos Code Cannot Be Null!")
     private String posCode;
 
