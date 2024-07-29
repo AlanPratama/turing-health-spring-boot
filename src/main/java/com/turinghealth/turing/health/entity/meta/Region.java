@@ -17,8 +17,15 @@ public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(unique = true, nullable = false)
     private String name;
-    
+
+
+
+    // ========== RELATIONAL ====================
+
+    // CHILDREN
     @JsonIgnore
     @OneToMany(cascade = CascadeType.REMOVE)
     private List<User> users;

@@ -16,13 +16,22 @@ public class Hospital {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String address;
 
+    private String phone;
+
+    @Column(nullable = false)
+    private String province;
+
+    private String gmap;
+
+
+
+    // ======== RELATIONAL ============
     @ManyToOne
     private Region region;
-
-    private String phone;
-    private String province;
-    private String gmap;
 }

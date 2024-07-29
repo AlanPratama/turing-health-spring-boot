@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.entity.meta;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,10 @@ public class Specialist {
     @Column(nullable = false, unique = true)
     private String name;
 
+    // ========= RELATIONAL ==============
+
+    // CHILDREN
     @OneToMany
+    @JsonIgnore
     private List<User> doctor;
 }

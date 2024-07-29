@@ -65,7 +65,7 @@ public class AuthenticationController {
         }
 
         return Response.renderJson(
-                null,
+                authenticationService.login(request),
                 "Login Successfully!",
                 HttpStatus.OK
         );

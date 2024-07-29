@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
         Region region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
 
-        if (multipartFile != null && !multipartFile.isEmpty()) {
+        if (user.getUserImageLink() != null && multipartFile != null && !multipartFile.isEmpty()) {
             String oldImageLink = user.getUserImageLink();
             String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf('/') + 1, oldImageLink.lastIndexOf('.'));
 
@@ -122,6 +122,18 @@ public class UserServiceImpl implements UserService {
 
             // Update the user's image link
             user.setUserImageLink(newPhotoLink);
+        } else {
+            File convFile = new File( multipartFile.getOriginalFilename() );
+            FileOutputStream fos = new FileOutputStream( convFile );
+            fos.write( multipartFile.getBytes() );
+            fos.close();
+
+            String photo = cloudinary.uploader()
+                    .upload(convFile, Map.of("profile"+request.getName(), UUID.randomUUID().toString()))
+                    .get("url")
+                    .toString();
+
+            user.setUserImageLink(photo);
         }
 
         // Update other user details

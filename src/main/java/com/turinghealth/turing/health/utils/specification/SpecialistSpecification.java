@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SpecialistSpecification {
 
-    public Specification<Specialist> getSpecification(String name) {
+    public static Specification<Specialist> getSpecification(String name) {
 
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();

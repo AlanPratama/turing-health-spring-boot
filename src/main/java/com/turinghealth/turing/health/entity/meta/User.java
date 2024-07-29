@@ -1,8 +1,9 @@
 package com.turinghealth.turing.health.entity.meta;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.turinghealth.turing.health.entity.enums.Gender;
 import com.turinghealth.turing.health.entity.enums.Role;
+import com.turinghealth.turing.health.entity.meta.transaction.OrderDetail;
+import com.turinghealth.turing.health.entity.meta.transaction.AddressUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +37,7 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -48,7 +50,11 @@ public class User implements UserDetails {
 //        }
 //    }
 
+    @Column(nullable = false)
     private Role role;
+
+
+    // ======== RELATIONAL =============
 
     @ManyToOne
     private Region region;
@@ -57,10 +63,23 @@ public class User implements UserDetails {
     private Specialist specialist;
 
 
+    // CHILDREN
+    @OneToMany(cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    List<AddressUser> addresses;
+
+    @OneToMany
+    @JsonIgnore
+    private List<OrderDetail> orderDetails;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Token> tokens;
 
+
+
+
+    // =========================== USER DETAILS =============================================
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

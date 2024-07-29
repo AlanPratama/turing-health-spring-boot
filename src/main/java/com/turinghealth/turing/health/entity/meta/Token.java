@@ -19,9 +19,10 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String token;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     public TokenType tokenType = TokenType.BEARER;
 
@@ -29,6 +30,7 @@ public class Token {
     public boolean expired;
 
 
+    // ========= RELATIONAL ==============
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "userId")
     @JsonIgnore

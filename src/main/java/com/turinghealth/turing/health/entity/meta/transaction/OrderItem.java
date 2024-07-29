@@ -1,6 +1,7 @@
-package com.turinghealth.turing.health.entity.meta;
+package com.turinghealth.turing.health.entity.meta.transaction;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.turinghealth.turing.health.entity.meta.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,14 +21,18 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    //@ManyToOne
-    //private OrderDetail orderDetail;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date createdAt;
 
-    @ManyToOne
+
+    // ======= RELATIONAL ===================
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    private OrderDetail orderDetail;
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "productId")
     private Product product;
-
-    @Temporal(TemporalType.DATE)
-    private Date createdAt;
 
 }
