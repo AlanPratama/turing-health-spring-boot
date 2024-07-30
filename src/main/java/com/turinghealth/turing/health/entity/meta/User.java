@@ -76,8 +76,9 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Token> tokens;
 
-
-
+    @OneToMany(cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private List<Consultation> consultations;
 
     // =========================== USER DETAILS =============================================
 

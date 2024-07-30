@@ -1,6 +1,7 @@
 package com.turinghealth.turing.health.utils.mapper;
 
 import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.utils.dto.consultationDTO.AccountDTO;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserResponseDTO;
 
 public class UserMapper {
@@ -18,6 +19,13 @@ public class UserMapper {
                 .region(user.getRegion())
                 .build();
     }
-    
+
+    public static AccountDTO accountDTO(User user) {
+        return AccountDTO.builder()
+                .name(user.getName())
+                .userImageLink(user.getUserImageLink())
+                .role(user.getRole())
+                .build();
+    }
     
 }
