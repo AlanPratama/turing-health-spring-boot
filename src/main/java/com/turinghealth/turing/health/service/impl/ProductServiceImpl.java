@@ -2,12 +2,16 @@ package com.turinghealth.turing.health.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
+import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.entity.meta.product.Category;
 import com.turinghealth.turing.health.entity.meta.product.Product;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.ProductRepository;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.CategoryService;
 import com.turinghealth.turing.health.service.OrderItemService;
 import com.turinghealth.turing.health.service.ProductService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
 import com.turinghealth.turing.health.utils.dto.productDTO.ProductRequestDTO;
 import com.turinghealth.turing.health.utils.specification.ProductSpecification;
@@ -15,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,14 +37,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final Cloudinary cloudinary;
+    private final UserRepository userRepository;
 
     @Override
     public Product create(ProductRequestDTO request, MultipartFile multipartFile) throws IOException {
-//        Optional<Product> isProduct = productRepository.findByName(request.getName());
-//
-//        if (isProduct.isPresent()) {
-//            throw new NotFoundException("Product Name Already Exist!");
-//        }
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
 
         Category category = categoryService.getOne(request.getCategoryId());
         String photo = null;
@@ -86,6 +93,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product update(ProductRequestDTO request, MultipartFile multipartFile, Integer id) throws IOException {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
         Product product = this.getOne(id);
         Category category = categoryService.getOne(request.getCategoryId());
 
@@ -122,6 +135,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void delete(Integer id) throws IOException {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
         Product product = this.getOne(id);
 
         if (product.getImageLink() != null && !product.getImageLink().isEmpty()) {

@@ -5,9 +5,11 @@ import com.cloudinary.Transformation;
 import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.RegionRepository;
 import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.UserService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserRequestDTO;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserResponseDTO;
@@ -19,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,44 +43,56 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final Cloudinary cloudinary;
 
-    @Override
-    public UserResponseDTO create(UserRequestDTO request, MultipartFile multipartFile) throws IOException {
-        Region region = regionRepository.findById(request.getRegionId()).orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
-
-        File convFile = new File( multipartFile.getOriginalFilename() );
-        FileOutputStream fos = new FileOutputStream( convFile );
-        fos.write( multipartFile.getBytes() );
-        fos.close();
-
-        String photo = cloudinary.uploader()
-                .upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID(),
-                        "transformation", new Transformation().width(150).height(150).crop("fill").gravity("center")
-                ))
-                .get("url")
-                .toString();
-
-        //delete local photo so only upload via cloudinary
-        convFile.delete();
-
-        User user = User.builder()
-                .name(request.getName())        
-                .nik(request.getNik())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .userImageLink(photo)
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.valueOf(request.getRole()))
-                .region(region)
-                .build();
-        
-        User createdUser = userRepository.save(user);
-        
-        return UserMapper.userResponseDTO(createdUser);
-    }
+//    @Override
+//    public UserResponseDTO create(UserRequestDTO request, MultipartFile multipartFile) throws IOException {
+//        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        final User user = userRepository.findByEmail(authentication.getName())
+//                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+//
+//        UserMiddleware.isAdmin(user.getRole());
+//
+//        Region region = regionRepository.findById(request.getRegionId()).orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
+//
+//        File convFile = new File( multipartFile.getOriginalFilename() );
+//        FileOutputStream fos = new FileOutputStream( convFile );
+//        fos.write( multipartFile.getBytes() );
+//        fos.close();
+//
+//        String photo = cloudinary.uploader()
+//                .upload(convFile, Map.of("public_id", "profile" + request.getName() + "_" + UUID.randomUUID(),
+//                        "transformation", new Transformation().width(150).height(150).crop("fill").gravity("center")
+//                ))
+//                .get("url")
+//                .toString();
+//
+//        //delete local photo so only upload via cloudinary
+//        convFile.delete();
+//
+//        User user = User.builder()
+//                .name(request.getName())
+//                .nik(request.getNik())
+//                .phone(request.getPhone())
+//                .address(request.getAddress())
+//                .userImageLink(photo)
+//                .email(request.getEmail())
+//                .password(passwordEncoder.encode(request.getPassword()))
+//                .role(Role.valueOf(request.getRole()))
+//                .region(region)
+//                .build();
+//
+//        User createdUser = userRepository.save(user);
+//
+//        return UserMapper.userResponseDTO(createdUser);
+//    }
 
     @Override
     public Page<UserResponseDTO> getAll(Pageable pageable, String name, Role role) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
         Specification<User> spec = UserSpecification.getSpecification(name, role);
         Page<User> tempUser = userRepository.findAll(spec, pageable);
         
@@ -89,6 +105,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getOne(Integer id) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User userAuth = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(userAuth.getRole());
+
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
         
         return UserMapper.userResponseDTO(user);
@@ -96,6 +118,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO update(UserUpdateDTO request, Integer id, MultipartFile multipartFile) throws IOException {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User userAuth = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(userAuth.getRole());
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
         Region region = regionRepository.findById(request.getRegionId())
@@ -153,6 +181,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Integer id) throws IOException {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User userAuth = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(userAuth.getRole());
+
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
 
         if (!user.getUserImageLink().isEmpty()) {

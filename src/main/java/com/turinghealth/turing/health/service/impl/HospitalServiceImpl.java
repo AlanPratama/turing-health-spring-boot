@@ -3,13 +3,19 @@ package com.turinghealth.turing.health.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Hospital;
 import com.turinghealth.turing.health.entity.meta.Region;
+import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.HospitalRepository;
 import com.turinghealth.turing.health.repository.RegionRepository;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.HospitalService;
 import com.turinghealth.turing.health.service.RegionService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalRequestDTO;
 import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalResponseDTO;
 import com.turinghealth.turing.health.utils.dto.regionDTO.RegionRequestDTO;
@@ -19,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,6 +44,7 @@ public class HospitalServiceImpl implements HospitalService {
         private final RegionService regionService;
 //        private final RestClient restClient;
         private final RestTemplate restTemplate;
+        private final UserRepository userRepository;
 
         private String baseUrl = "https://dekontaminasi.com/api/id/covid19/hospitals";
         public static String gmapUrl = "https://www.google.com/maps/place?q=";
@@ -92,6 +101,13 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public Hospital create(HospitalRequestDTO request) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
+
             Region region = regionService.getOne(request.getRegionId());
 
         Hospital hospital = Hospital.builder()
@@ -141,6 +157,13 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public Hospital update(HospitalRequestDTO request, Integer id) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
+
         Region region = regionService.getOne(request.getRegionId());
         Hospital hospital = hospitalRepository.getOne(id);
 
@@ -156,6 +179,12 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public void delete(Integer id) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
         Hospital hospital = hospitalRepository.findById(id).orElseThrow(()-> new NotFoundException("Hospital with "+id+" isn't found" ));
 
         hospitalRepository.delete(hospital);

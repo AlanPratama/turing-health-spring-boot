@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class AddressUserController {
     private final AddressUserService addressUserService;
 
-
     @PostMapping
     @Validated
     public ResponseEntity<?> create(@Valid @RequestBody AddressUserRequestDTO request, Errors errors) {

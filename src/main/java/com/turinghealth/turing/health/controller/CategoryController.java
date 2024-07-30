@@ -1,7 +1,12 @@
 package com.turinghealth.turing.health.controller;
 
+import com.turinghealth.turing.health.entity.enums.Role;
+import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.entity.meta.product.Category;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.CategoryService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.CategoryRequestDTO;
 import com.turinghealth.turing.health.utils.mapper.ErrorsMapper;
 import com.turinghealth.turing.health.utils.response.PaginationResponse;
@@ -13,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +29,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/categories")
 public class CategoryController {
     private final CategoryService categoryService;
+    private final UserRepository userRepository;
 
     @PostMapping
     @Validated
     public ResponseEntity<?> create(@Valid @RequestBody CategoryRequestDTO request, Errors errors) {
+
+
         if (errors.hasErrors()){
             WebResponseError<?> responseError = ErrorsMapper.renderErrors("There's a problem while creating hospital", errors);
             return ResponseEntity.status(responseError.getStatus()).body(responseError);

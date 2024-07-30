@@ -4,6 +4,8 @@ import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationAcce
 import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationDTO;
 import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationRequestDTO;
 
+import java.util.List;
+
 public interface ConsultationService {
 
     // MEMEBR START TO CONSULTATION
@@ -13,11 +15,14 @@ public interface ConsultationService {
     // - DOCTOR
     ConsultationDTO startConsultation(ConsultationRequestDTO request);
 
+
     // DOCTOR ACCEPTED CONSULTATION
     // - CONSULTATION URL
     // - ACCEPTED (true)
     ConsultationDTO acceptConsultation(ConsultationAcceptRequestDTO request, Integer id);
 
+
+    List<ConsultationDTO> getAll();
 
 
     // ????

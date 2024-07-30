@@ -1,8 +1,13 @@
 package com.turinghealth.turing.health.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Hospital;
+import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.HospitalService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalRequestDTO;
 import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalResponseDTO;
 import com.turinghealth.turing.health.utils.mapper.ErrorsMapper;
@@ -17,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/hospitals")
 public class HospitalController {
     private final HospitalService hospitalService;
+    private final UserRepository userRepository;
 
     @GetMapping("/seeding")
     public ResponseEntity<?> hospitalSeeder() throws JsonProcessingException {
@@ -47,13 +55,14 @@ public class HospitalController {
                 HttpStatus.CREATED
         );
     }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAll(
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String province,
             @RequestParam(required = false) Integer regionId
-            ){
+    ){
         Page<HospitalResponseDTO> result = hospitalService.getAll(pageable,name,province,regionId);
         PaginationResponse<HospitalResponseDTO> paged = new PaginationResponse<>(result);
         return Response.renderJson(

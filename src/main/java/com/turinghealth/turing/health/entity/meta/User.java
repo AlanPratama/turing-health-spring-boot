@@ -41,15 +41,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    // DID WE NEED TO ADD GENDER FIELD?
-//    private Gender gender;
-//    @PrePersist
-//    protected void onCreate() {
-//        if (this.gender == null) {
-//            this.gender = Gender.MALE;
-//        }
-//    }
-
     @Column(nullable = false)
     private Role role;
 

@@ -2,6 +2,7 @@ package com.turinghealth.turing.health.service.impl;
 
 import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.entity.meta.transaction.AddressUser;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.AddressUserRepository;
 import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.AddressUserService;
@@ -31,6 +32,9 @@ public class AddressUserServiceImpl implements AddressUserService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
+        UserMiddleware.isUser(user.getRole());
+        UserMiddleware.isDoctor(user.getRole());
+
         AddressUser addressUser = AddressUser.builder()
                 .user(user)
                 .buyerName(request.getBuyerName())
@@ -52,6 +56,8 @@ public class AddressUserServiceImpl implements AddressUserService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
+        UserMiddleware.isUser(user.getRole());
+        UserMiddleware.isDoctor(user.getRole());
 
         Specification<AddressUser> spec = AddressUserSpecification.getSpecification(user);
         List<AddressUser> addressUserList = addressUserRepository.findAll(spec);
@@ -64,6 +70,9 @@ public class AddressUserServiceImpl implements AddressUserService {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isUser(user.getRole());
+        UserMiddleware.isDoctor(user.getRole());
 
         AddressUser addressUser = addressUserRepository.findById(id).orElseThrow(() -> new NotFoundException("Address Is Not Found!"));
 
