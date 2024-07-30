@@ -36,24 +36,24 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
 
-    @Operation(summary = "Create New User", security = @SecurityRequirement(name = "bearerAuth"))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User Created Successfully!", content = { @Content(schema = @Schema(implementation = WebResponse.class)) }),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = { @Content(schema = @Schema()) }),
-            @ApiResponse(responseCode = "404", description = "Not Found", content = { @Content(schema = @Schema()) }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = { @Content(schema = @Schema()) })
-    })
-    @PostMapping(consumes = "multipart/form-data", path = "/uploadfile")
-    @Validated
-    public ResponseEntity<?> create(@Valid @ModelAttribute UserRequestDTO request, Errors errors, @RequestPart("file") MultipartFile multipartFile) throws IOException {
-        if (errors.hasErrors()) {
-            WebResponseError<?> responseError = ErrorsMapper.renderErrors("Create User Failed!", errors);
-            return ResponseEntity.status(responseError.getStatus()).body(responseError);
-        }
-
-        return Response.renderJson(userService.create(request, multipartFile), "User Has Been Created!", HttpStatus.OK);
-    }
+//    @Operation(summary = "Create New User", security = @SecurityRequirement(name = "bearerAuth"))
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "User Created Successfully!", content = { @Content(schema = @Schema(implementation = WebResponse.class)) }),
+//            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+//            @ApiResponse(responseCode = "403", description = "Forbidden", content = { @Content(schema = @Schema()) }),
+//            @ApiResponse(responseCode = "404", description = "Not Found", content = { @Content(schema = @Schema()) }),
+//            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = { @Content(schema = @Schema()) })
+//    })
+//    @PostMapping(consumes = "multipart/form-data", path = "/uploadfile")
+//    @Validated
+//    public ResponseEntity<?> create(@Valid @ModelAttribute UserRequestDTO request, Errors errors, @RequestPart("file") MultipartFile multipartFile) throws IOException {
+//        if (errors.hasErrors()) {
+//            WebResponseError<?> responseError = ErrorsMapper.renderErrors("Create User Failed!", errors);
+//            return ResponseEntity.status(responseError.getStatus()).body(responseError);
+//        }
+//
+//        return Response.renderJson(userService.create(request, multipartFile), "User Has Been Created!", HttpStatus.OK);
+//    }
 
 
     @Operation(summary = "Get All Users", security = @SecurityRequirement(name = "bearerAuth"))
