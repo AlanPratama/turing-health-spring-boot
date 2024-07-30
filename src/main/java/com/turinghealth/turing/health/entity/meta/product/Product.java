@@ -1,12 +1,8 @@
 package com.turinghealth.turing.health.entity.meta.product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.turinghealth.turing.health.entity.meta.transaction.OrderItem;
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -16,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
+@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

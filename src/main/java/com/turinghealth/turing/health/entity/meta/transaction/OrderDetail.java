@@ -3,6 +3,7 @@ package com.turinghealth.turing.health.entity.meta.transaction;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.turinghealth.turing.health.entity.enums.TransactionStatus;
+import com.turinghealth.turing.health.entity.meta.OrderItem;
 import com.turinghealth.turing.health.entity.meta.User;
 import jakarta.persistence.*;
 import lombok.*;

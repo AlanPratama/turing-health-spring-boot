@@ -1,12 +1,10 @@
-package com.turinghealth.turing.health.entity.meta.transaction;
+package com.turinghealth.turing.health.entity.meta;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.turinghealth.turing.health.entity.meta.product.Product;
+import com.turinghealth.turing.health.entity.meta.transaction.OrderDetail;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -16,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_items")
+@Builder
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
