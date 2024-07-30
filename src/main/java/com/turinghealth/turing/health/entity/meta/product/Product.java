@@ -3,15 +3,13 @@ package com.turinghealth.turing.health.entity.meta.product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.turinghealth.turing.health.entity.meta.transaction.OrderItem;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -21,7 +19,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer categoryId;
     private String imageLink;
 
     @Column(nullable = false)
@@ -33,9 +30,12 @@ public class Product {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
+    private Boolean available;
 
     // =========== RELATIONAL ===============
-
+    @ManyToOne
+    private Category category;
 
     // CHILDREN
 //    @OneToMany

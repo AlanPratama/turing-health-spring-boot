@@ -1,0 +1,92 @@
+package com.turinghealth.turing.health.service.impl;
+
+import com.turinghealth.turing.health.entity.enums.Role;
+import com.turinghealth.turing.health.entity.meta.Consultation;
+import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.repository.ConsultationRepository;
+import com.turinghealth.turing.health.repository.UserRepository;
+import com.turinghealth.turing.health.service.ConsultationService;
+import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
+import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
+import com.turinghealth.turing.health.utils.dto.consultationDTO.AccountDTO;
+import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationAcceptRequestDTO;
+import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationDTO;
+import com.turinghealth.turing.health.utils.dto.consultationDTO.ConsultationRequestDTO;
+import com.turinghealth.turing.health.utils.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+
+@Service
+@RequiredArgsConstructor
+public class ConsultationServiceImpl implements ConsultationService {
+    private final ConsultationRepository consultationRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public ConsultationDTO startConsultation(ConsultationRequestDTO request) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User member = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        if (member.getRole() != Role.MEMBER) {
+            throw new ValidateException("Only Role Member Can Start Consultation");
+        }
+
+        User doctor = userRepository.findById(request.getDoctorId()).orElseThrow(() -> new NotFoundException("Doctor Not Found!"));
+
+        if (doctor.getRole() != Role.DOCTOR) {
+            throw new ValidateException("Invalid Doctor!");
+        }
+
+        Consultation consultation = Consultation.builder()
+                .consultationDate(request.getConsultationDate())
+                .consultationUrl(null)
+                .accepted(false)
+                .member(member)
+                .doctor(doctor)
+                .build();
+
+        return ConsultationDTO.builder()
+                .consultationDate(consultation.getConsultationDate())
+                .consultationUrl(consultation.getConsultationUrl())
+                .accepted(consultation.isAccepted())
+                .member(UserMapper.accountDTO(member))
+                .doctor(UserMapper.accountDTO(doctor))
+                .build();
+    }
+
+    @Override
+    public ConsultationDTO acceptConsultation(ConsultationAcceptRequestDTO request, Integer id) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User doctor = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        if (doctor.getRole() != Role.DOCTOR) {
+            throw new ValidateException("Only Role Doctor Can Accept Consultation");
+        }
+
+        Consultation consultation = consultationRepository.findById(id).orElseThrow(() -> new NotFoundException("Consultation Not Found!"));
+
+        if (!Objects.equals(consultation.getDoctor().getId(), doctor.getId())) {
+            throw new NotFoundException("This Consultation Is Not Your!");
+        }
+
+        consultation.setConsultationUrl(request.getConsultationUrl());
+        consultation.setAccepted(true);
+
+        Consultation acceptedConsultation = consultationRepository.save(consultation);
+
+        return ConsultationDTO.builder()
+                .consultationDate(acceptedConsultation.getConsultationDate())
+                .consultationUrl(acceptedConsultation.getConsultationUrl())
+                .accepted(acceptedConsultation.isAccepted())
+                .member(UserMapper.accountDTO(acceptedConsultation.getMember()))
+                .doctor(UserMapper.accountDTO(acceptedConsultation.getDoctor()))
+                .build();
+    }
+}
