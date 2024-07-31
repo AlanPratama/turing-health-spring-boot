@@ -13,7 +13,11 @@ import org.junit.platform.suite.api.Suite;
         CategoryServiceTest.class,
         AuthenticationServiceTest.class,
         AddressUserServiceTest.class,
-        ConsultationServiceTest.class
+        ConsultationServiceTest.class,
+        TransactionServiceTest.class,
+        MidTransServiceTest.class,
+        OrderItemServiceTest.class,
+        ProfileServiceTest.class
 })
 public class TestSuite {
 }

@@ -27,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,6 +140,23 @@ public class ConsultationServiceTest {
         assertTrue(result.isAccepted());
         assertEquals(consultationAcceptRequestDTO.getConsultationUrl(), result.getConsultationUrl());
         assertEquals(userDoctor.getName(), result.getDoctor().getName());
+    }
+
+    @Test
+    void getAllConsultation_Success() {
+        List<Consultation> consultationList = new ArrayList<>();
+        consultationList.add(consultation);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(consultationRepository.findAll(any(Specification.class))).thenReturn(consultationList);
+
+        List<ConsultationDTO> result = consultationService.getAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(consultationRepository, times(1)).findAll(any(Specification.class));
     }
 
 }

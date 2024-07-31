@@ -2,8 +2,10 @@ package com.turinghealth.turing.health.utils.dto.profileDTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ChangePasswordDTO {
 
     @NotBlank(message = "Old Password Cannot Be Blank!")

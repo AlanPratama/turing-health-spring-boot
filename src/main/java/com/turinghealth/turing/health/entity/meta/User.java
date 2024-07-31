@@ -50,10 +50,6 @@ public class User implements UserDetails {
     @ManyToOne
     private Region region;
 
-    @ManyToOne
-    private Specialist specialist;
-
-
     // CHILDREN
     @OneToMany(cascade = CascadeType.REMOVE)
     @JsonIgnore
