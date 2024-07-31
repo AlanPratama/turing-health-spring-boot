@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.service.impl;
 
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.entity.meta.transaction.AddressUser;
 import com.turinghealth.turing.health.middleware.UserMiddleware;
@@ -8,6 +9,7 @@ import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.AddressUserService;
 import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.addressUserDTO.AddressUserRequestDTO;
 import com.turinghealth.turing.health.utils.specification.AddressUserSpecification;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +34,9 @@ public class AddressUserServiceImpl implements AddressUserService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
-        UserMiddleware.isUser(user.getRole());
-        UserMiddleware.isDoctor(user.getRole());
+        if (user.getRole() == Role.ADMIN) {
+            throw new ValidateException("Invalid Role!");
+        }
 
         AddressUser addressUser = AddressUser.builder()
                 .user(user)
@@ -56,8 +59,9 @@ public class AddressUserServiceImpl implements AddressUserService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
-        UserMiddleware.isUser(user.getRole());
-        UserMiddleware.isDoctor(user.getRole());
+        if (user.getRole() == Role.ADMIN) {
+            throw new ValidateException("Invalid Role!");
+        }
 
         Specification<AddressUser> spec = AddressUserSpecification.getSpecification(user);
         List<AddressUser> addressUserList = addressUserRepository.findAll(spec);
@@ -71,8 +75,9 @@ public class AddressUserServiceImpl implements AddressUserService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
-        UserMiddleware.isUser(user.getRole());
-        UserMiddleware.isDoctor(user.getRole());
+        if (user.getRole() == Role.ADMIN) {
+            throw new ValidateException("Invalid Role!");
+        }
 
         AddressUser addressUser = addressUserRepository.findById(id).orElseThrow(() -> new NotFoundException("Address Is Not Found!"));
 

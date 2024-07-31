@@ -25,6 +25,12 @@ public class OrderDetail {
     @Column(nullable = false)
     private Integer total;
 
+    private String message;
+    private String resiCode;
+    private String paymentType;
+    private String vaNumber;
+    private String expiryTime;
+
     @Column(nullable = false)
     private TransactionStatus status;
 
@@ -35,9 +41,11 @@ public class OrderDetail {
 
 
     // ======= RELATIONAL ========================
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     private User user;
 
+    @ManyToOne
+    private AddressUser addressUser;
 
     // CHILDREN
     @OneToMany(cascade = CascadeType.REMOVE)
