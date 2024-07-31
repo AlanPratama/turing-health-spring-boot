@@ -1,14 +1,19 @@
 package com.turinghealth.turing.health;
 
-import com.turinghealth.turing.health.service.HospitalServiceTest;
-import com.turinghealth.turing.health.service.RegionServiceTest;
+import com.turinghealth.turing.health.service.*;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
         HospitalServiceTest.class,
-        RegionServiceTest.class
+        RegionServiceTest.class,
+        UserServiceTest.class,
+        ProductServiceTest.class,
+        CategoryServiceTest.class,
+        AuthenticationServiceTest.class,
+        AddressUserServiceTest.class,
+        ConsultationServiceTest.class
 })
 public class TestSuite {
 }

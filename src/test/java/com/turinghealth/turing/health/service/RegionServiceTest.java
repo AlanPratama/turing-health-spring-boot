@@ -1,8 +1,12 @@
 package com.turinghealth.turing.health.service;
 
 
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Region;
+import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.RegionRepository;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.impl.RegionServiceImpl;
 import com.turinghealth.turing.health.utils.dto.regionDTO.RegionRequestDTO;
 import com.turinghealth.turing.health.utils.dto.regionDTO.RegionResponseDTO;
@@ -13,6 +17,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.xml.transform.Result;
 import java.lang.reflect.Array;
@@ -30,8 +37,22 @@ public class RegionServiceTest {
     @Mock
     private RegionRepository regionRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private UserMiddleware userMiddleware;
+
     @InjectMocks
     private RegionServiceImpl regionService;
+
+    private User user;
 
     private Region region;
     private RegionRequestDTO regionRequestDTO;
@@ -44,6 +65,12 @@ public class RegionServiceTest {
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
+
+        user = new User();
+        user.setEmail("test@gmail.com");
+        user.setRole(Role.ADMIN);
+
+        SecurityContextHolder.setContext(securityContext);
 
         pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "name");
         name = "name";
@@ -71,6 +98,10 @@ public class RegionServiceTest {
 
     @Test
     public void createRegion_Success(){
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         RegionResponseDTO expectedResponse = new RegionResponseDTO(region.getId(), region.getName());
 
         when(regionRepository.save(any(Region.class))).thenReturn(region);
@@ -93,6 +124,10 @@ public class RegionServiceTest {
 
     @Test
     public void updateRegion_Success(){
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         RegionRequestDTO updateRequestDTO = new RegionRequestDTO("Another test Region");
 
         Region newRegion = Region.builder()
@@ -113,6 +148,10 @@ public class RegionServiceTest {
 
     @Test
     public void deleteRegion_Success(){
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         when(regionRepository.findById(regionId))
                 .thenReturn(Optional.of(region))
                         .thenReturn(Optional.empty());

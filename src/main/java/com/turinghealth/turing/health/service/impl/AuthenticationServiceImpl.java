@@ -45,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void rekoveALlUserTokens(User user) {
+    private void revokeALlUserTokens(User user) {
         var validUserToken = tokenRepository.findAllValidTokenByUser(user.getId());
 
         if (validUserToken.isEmpty()) return;
@@ -93,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
-        rekoveALlUserTokens(user);
+        revokeALlUserTokens(user);
         saveUserToken(user, jwtToken);
 
         return AuthResponseDTO.builder()
@@ -120,7 +120,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
-                rekoveALlUserTokens(user);
+                revokeALlUserTokens(user);
                 saveUserToken(user, accessToken);
 
                 var authResponse = AuthResponseDTO.builder()

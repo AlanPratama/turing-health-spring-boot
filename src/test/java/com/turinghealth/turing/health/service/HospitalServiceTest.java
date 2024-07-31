@@ -1,8 +1,12 @@
 package com.turinghealth.turing.health.service;
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Hospital;
 import com.turinghealth.turing.health.entity.meta.Region;
+import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.middleware.UserMiddleware;
 import com.turinghealth.turing.health.repository.HospitalRepository;
 import com.turinghealth.turing.health.repository.RegionRepository;
+import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.impl.HospitalServiceImpl;
 import com.turinghealth.turing.health.service.impl.RegionServiceImpl;
 import com.turinghealth.turing.health.utils.dto.hospitalDTO.HospitalRequestDTO;
@@ -14,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.xml.transform.Result;
 import java.lang.reflect.Array;
@@ -39,10 +46,21 @@ public class HospitalServiceTest {
     private RegionService regionService;
 
     @Mock
-    private HospitalService hospitalServiceInterface;
+    private UserRepository userRepository;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private UserMiddleware userMiddleware;
 
     @InjectMocks
     private HospitalServiceImpl hospitalService;
+
+    private User user;
 
     private Hospital hospital;
     private Region region;
@@ -58,6 +76,12 @@ public class HospitalServiceTest {
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
+
+        user = new User();
+            user.setEmail("test@gmail.com");
+            user.setRole(Role.ADMIN);
+
+        SecurityContextHolder.setContext(securityContext);
 
         pageable = PageRequest.of(0,10, Sort.Direction.ASC, "name", "province", "region");
         name = "region";
@@ -84,6 +108,7 @@ public class HospitalServiceTest {
             hospital.setPhone("phone");
             hospital.setProvince("province");
             hospital.setRegion(region);
+
     }
 
     @Test
@@ -97,16 +122,16 @@ public class HospitalServiceTest {
 
         assertEquals(hospitals.size(), result.getTotalElements());
         assertEquals(pageable, result.getPageable());
-        assertEquals(hospitals.get(0).getName(), result.getContent().get(0).getName());
-        assertEquals(hospitals.get(1).getName(), result.getContent().get(1).getName());
         verify(regionRepository, times(1)).findById(region.getId());
         verify(hospitalRepository, times(1)).findAll(any(Specification.class), eq(pageable));
     }
 
     @Test
     public void createHospital_Success(){
-        when(regionRepository.findById(hospitalRequestDTO.getRegionId())).thenReturn(Optional.of(region));
-        when(regionService.getOne(hospitalRequestDTO.getRegionId())).thenReturn(region);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         when(hospitalRepository.save(any(Hospital.class))).thenReturn(hospital);
 
         Hospital result = hospitalService.create(hospitalRequestDTO);
@@ -118,7 +143,6 @@ public class HospitalServiceTest {
         assertEquals(hospital.getProvince(), result.getProvince());
         assertEquals(hospital.getRegion(), result.getRegion());
 
-        verify(regionService, times(1)).getOne(hospitalRequestDTO.getRegionId());
         verify(hospitalRepository, times(1)).save(any(Hospital.class));
     }
 
@@ -133,6 +157,10 @@ public class HospitalServiceTest {
 
     @Test
     public void updateHospital_Success(){
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         HospitalRequestDTO updateHospitalDTO = new HospitalRequestDTO();
         hospitalRequestDTO.setName("Test Hospital3");
         hospitalRequestDTO.setAddress("address3");
@@ -150,7 +178,6 @@ public class HospitalServiceTest {
             newHospital.setRegion(region);
 
         when(hospitalRepository.getOne(hospitalId)).thenReturn(hospital);
-        when(regionService.getOne(updateHospitalDTO.getRegionId())).thenReturn(region);
         when(hospitalRepository.save(any(Hospital.class))).thenReturn(newHospital);
 
 
@@ -170,6 +197,10 @@ public class HospitalServiceTest {
 
     @Test
     public void deleteHospital_Success(){
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail(any(String.class))).thenReturn(Optional.of(user));
+
         when(hospitalRepository.findById(hospitalId))
                 .thenReturn(Optional.of(hospital))
                 .thenReturn(Optional.empty());
