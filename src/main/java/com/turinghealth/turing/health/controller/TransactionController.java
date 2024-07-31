@@ -3,6 +3,7 @@ package com.turinghealth.turing.health.controller;
 import com.turinghealth.turing.health.entity.enums.TransactionStatus;
 import com.turinghealth.turing.health.service.TransactionService;
 import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionRequestDTO;
+import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionResiCodeDTO;
 import com.turinghealth.turing.health.utils.mapper.ErrorsMapper;
 import com.turinghealth.turing.health.utils.response.Response;
 import com.turinghealth.turing.health.utils.response.WebResponseError;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/transactions")
 public class TransactionController {
     private final TransactionService transactionService;
 
@@ -33,11 +34,52 @@ public class TransactionController {
         );
     }
 
-    @PostMapping("/change-status/{orderId}")
-    public ResponseEntity<?> changeStatus(@PathVariable String orderId, @RequestBody TransactionStatus status) {
+    @PostMapping("/change-status/canceled/{orderId}")
+    public ResponseEntity<?> changeStatusToCanceled(@PathVariable String orderId) {
         return Response.renderJson(
-                transactionService.changeStatus(orderId, status),
+                transactionService.changeStatusToCanceled(orderId),
                 "Transaction Status Changed Successfully!"
+        );
+    }
+
+    @PostMapping("/change-status/packed/{orderId}")
+    public ResponseEntity<?> changeStatusToPacked(@PathVariable String orderId) {
+        return Response.renderJson(
+                transactionService.changeStatusToPacked(orderId),
+                "Transaction Status Changed Successfully!"
+        );
+    }
+
+    @PostMapping("/change-status/sent/{orderId}")
+    public ResponseEntity<?> changeStatusToSent(@PathVariable String orderId, @RequestBody TransactionResiCodeDTO resiCode) {
+        return Response.renderJson(
+                transactionService.changeStatusToSent(orderId, resiCode),
+                "Transaction Status Changed Successfully!"
+        );
+    }
+
+    @PostMapping("/change-status/accepted/{orderId}")
+    public ResponseEntity<?> changeStatusToAccepted(@PathVariable String orderId) {
+        return Response.renderJson(
+                transactionService.changeStatusToAccepted(orderId),
+                "Transaction Status Changed Successfully!"
+        );
+    }
+
+
+    @GetMapping
+    public ResponseEntity<?> getAllTransaction  () {
+        return Response.renderJson(
+                transactionService.getAllTransaction(),
+                "Transaction Fetched Successfully!"
+        );
+    }
+
+    @GetMapping("{orderId}")
+    public ResponseEntity<?> getOneTransaction(@PathVariable String orderId) {
+        return Response.renderJson(
+                transactionService.getOneTransaction(orderId),
+                "Transaction Fetched Successfully!"
         );
     }
 

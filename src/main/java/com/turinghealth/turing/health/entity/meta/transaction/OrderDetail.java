@@ -42,6 +42,7 @@ public class OrderDetail {
 
     // ======= RELATIONAL ========================
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     @ManyToOne
