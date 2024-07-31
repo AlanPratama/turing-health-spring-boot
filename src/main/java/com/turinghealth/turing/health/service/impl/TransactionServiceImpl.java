@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.service.impl;
 
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.enums.TransactionStatus;
 import com.turinghealth.turing.health.entity.meta.User;
 import com.turinghealth.turing.health.entity.meta.product.Product;
@@ -16,11 +17,13 @@ import com.turinghealth.turing.health.service.ProductService;
 import com.turinghealth.turing.health.service.TransactionService;
 import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.midtransDTO.BankTransferDTO;
 import com.turinghealth.turing.health.utils.dto.midtransDTO.MidtransRequestDTO;
 import com.turinghealth.turing.health.utils.dto.midtransDTO.TransactionDetailDTO;
 import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionDTO;
 import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionRequestDTO;
+import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionResiCodeDTO;
 import com.turinghealth.turing.health.utils.mapper.UserMapper;
 import com.turinghealth.turing.health.utils.response.MidtransResponse;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
+        if (user.getRole() == Role.ADMIN) throw new ValidateException("Invalid Role!");
 
         // resiCode -> after user pay
 
@@ -148,38 +152,150 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDTO changeStatusToPacked(String orderId) {
+    // ALL ROLE
+    public TransactionDTO changeStatusToCanceled(String orderId) {
         MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
         OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
 
+        if (Objects.equals(midtrans.getTransactionStatus(), "pending") && orderDetail.getStatus().equals(TransactionStatus.PENDING)) {
+            orderDetail.setStatus(TransactionStatus.CANCELED);
 
-        OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
-        List<Product> productList = updatedOrderDetail.getOrderItems().stream()
-                .map(OrderItem::getProduct)
-                .collect(Collectors.toList());
+            OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+            List<Product> productList = updatedOrderDetail.getOrderItems().stream()
+                    .map(OrderItem::getProduct)
+                    .collect(Collectors.toList());
 
-        return TransactionDTO.builder()
-                .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
-                .addressUser(updatedOrderDetail.getAddressUser())
-                .total(updatedOrderDetail.getTotal())
-                .message(updatedOrderDetail.getMessage())
-                .paymentType(updatedOrderDetail.getPaymentType())
-                .resiCode(updatedOrderDetail.getResiCode())
-                .vaNumber(updatedOrderDetail.getVaNumber())
-                .expiryTime(updatedOrderDetail.getExpiryTime())
-                .status(updatedOrderDetail.getStatus())
-                .createdAt(updatedOrderDetail.getCreatedAt())
-                .products(productList)
-                .build();
+            return TransactionDTO.builder()
+                    .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
+                    .addressUser(updatedOrderDetail.getAddressUser())
+                    .total(updatedOrderDetail.getTotal())
+                    .message(updatedOrderDetail.getMessage())
+                    .paymentType(updatedOrderDetail.getPaymentType())
+                    .resiCode(updatedOrderDetail.getResiCode())
+                    .vaNumber(updatedOrderDetail.getVaNumber())
+                    .expiryTime(updatedOrderDetail.getExpiryTime())
+                    .status(updatedOrderDetail.getStatus())
+                    .createdAt(updatedOrderDetail.getCreatedAt())
+                    .products(productList)
+                    .build();
+        }
+
+        throw new ValidateException("Invalid Transaction Status!");
     }
 
     @Override
-    public TransactionDTO changeStatusToSent(String orderId, String resiCode) {
-        return null;
+    // !: BUYER ALREADY PAY THE BILL
+    // ALL ROLE
+    public TransactionDTO changeStatusToPacked(String orderId) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
+        OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
+
+        if (Objects.equals(midtrans.getTransactionStatus(), "settlement")) {
+            orderDetail.setStatus(TransactionStatus.PACKED);
+
+            OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+            List<Product> productList = updatedOrderDetail.getOrderItems().stream()
+                    .map(OrderItem::getProduct)
+                    .collect(Collectors.toList());
+
+            return TransactionDTO.builder()
+                    .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
+                    .addressUser(updatedOrderDetail.getAddressUser())
+                    .total(updatedOrderDetail.getTotal())
+                    .message(updatedOrderDetail.getMessage())
+                    .paymentType(updatedOrderDetail.getPaymentType())
+                    .resiCode(updatedOrderDetail.getResiCode())
+                    .vaNumber(updatedOrderDetail.getVaNumber())
+                    .expiryTime(updatedOrderDetail.getExpiryTime())
+                    .status(updatedOrderDetail.getStatus())
+                    .createdAt(updatedOrderDetail.getCreatedAt())
+                    .products(productList)
+                    .build();
+        }
+
+        throw new ValidateException("Invalid Transaction Status!");
     }
 
     @Override
+    // DOCTOR
+    public TransactionDTO changeStatusToSent(String orderId, TransactionResiCodeDTO resiCode) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        UserMiddleware.isAdmin(user.getRole());
+
+        MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
+        OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
+
+        if (Objects.equals(midtrans.getTransactionStatus(), "settlement") && orderDetail.getStatus().equals(TransactionStatus.PACKED)) {
+            orderDetail.setResiCode(resiCode.getResiCode());
+            orderDetail.setStatus(TransactionStatus.SENT);
+
+            OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+            List<Product> productList = updatedOrderDetail.getOrderItems().stream()
+                    .map(OrderItem::getProduct)
+                    .collect(Collectors.toList());
+
+            return TransactionDTO.builder()
+                    .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
+                    .addressUser(updatedOrderDetail.getAddressUser())
+                    .total(updatedOrderDetail.getTotal())
+                    .message(updatedOrderDetail.getMessage())
+                    .paymentType(updatedOrderDetail.getPaymentType())
+                    .resiCode(updatedOrderDetail.getResiCode())
+                    .vaNumber(updatedOrderDetail.getVaNumber())
+                    .expiryTime(updatedOrderDetail.getExpiryTime())
+                    .status(updatedOrderDetail.getStatus())
+                    .createdAt(updatedOrderDetail.getCreatedAt())
+                    .products(productList)
+                    .build();
+        }
+
+        throw new ValidateException("Invalid Transaction Status!");
+    }
+
+
+    @Override
+    // MEMBER
+    // DOCTOR
     public TransactionDTO changeStatusToAccepted(String orderId) {
-        return null;
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        if (user.getRole() == Role.ADMIN) throw new ValidateException("Invalid Role!");
+
+        MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
+        OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
+
+        if (Objects.equals(midtrans.getTransactionStatus(), "settlement") && orderDetail.getStatus().equals(TransactionStatus.SENT)) {
+            orderDetail.setStatus(TransactionStatus.ACCEPTED);
+
+            OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
+            List<Product> productList = updatedOrderDetail.getOrderItems().stream()
+                    .map(OrderItem::getProduct)
+                    .collect(Collectors.toList());
+
+            return TransactionDTO.builder()
+                    .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
+                    .addressUser(updatedOrderDetail.getAddressUser())
+                    .total(updatedOrderDetail.getTotal())
+                    .message(updatedOrderDetail.getMessage())
+                    .paymentType(updatedOrderDetail.getPaymentType())
+                    .resiCode(updatedOrderDetail.getResiCode())
+                    .vaNumber(updatedOrderDetail.getVaNumber())
+                    .expiryTime(updatedOrderDetail.getExpiryTime())
+                    .status(updatedOrderDetail.getStatus())
+                    .createdAt(updatedOrderDetail.getCreatedAt())
+                    .products(productList)
+                    .build();
+        }
+
+        throw new ValidateException("Invalid Transaction Status!");
     }
 }
