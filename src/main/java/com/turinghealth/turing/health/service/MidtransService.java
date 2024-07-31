@@ -7,6 +7,6 @@ public interface MidtransService {
 
     MidtransResponse chargeTransaction(MidtransRequestDTO midtransRequest);
     MidtransResponse fetchTransaction(String order_id);
-    MidtransResponse updateTransactionStatus(String orderId, String status);
+    void updateTransactionStatusToCanceled(String orderId);
 
 }

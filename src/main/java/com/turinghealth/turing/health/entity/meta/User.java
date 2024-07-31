@@ -59,8 +59,7 @@ public class User implements UserDetails {
     @JsonIgnore
     List<AddressUser> addresses;
 
-    @OneToMany
-    @JsonIgnore
+    @OneToMany(mappedBy = "user")
     private List<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)

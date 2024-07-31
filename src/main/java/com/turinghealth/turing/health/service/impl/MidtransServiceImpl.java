@@ -4,6 +4,7 @@ import com.turinghealth.turing.health.configuration.MidtransConfig;
 import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.enums.TransactionStatus;
 import com.turinghealth.turing.health.service.MidtransService;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.midtransDTO.MidtransRequestDTO;
 import com.turinghealth.turing.health.utils.response.MidtransResponse;
 import lombok.RequiredArgsConstructor;
@@ -59,9 +60,28 @@ public class MidtransServiceImpl implements MidtransService {
     }
 
     @Override
-    public MidtransResponse updateTransactionStatus(String orderId, String status) {
+    public void updateTransactionStatusToCanceled(String orderId) {
         MidtransResponse midtransResponse = this.fetchTransaction(orderId);
+        if (Objects.equals(midtransResponse.getTransactionStatus(), "pending")) {
 
-        return midtransResponse;
+            HttpEntity<MidtransRequestDTO> request = new HttpEntity<>(null, midtransConfig.httpHeaders());
+
+            ResponseEntity<MidtransResponse> response = restTemplate.exchange(
+                    "https://api.sandbox.midtrans.com/v2/" + orderId + "/cancel",
+                    HttpMethod.POST,
+                    request,
+                    MidtransResponse.class
+            );
+
+            return;
+
+//            MidtransResponse canceledTransaction = restClient.post()
+//                    .uri("https://api.sandbox.midtrans.com/v2/" + orderId + "/cancel")
+//                    .headers(httpHeaders -> headers.addAll(midtransConfig.httpHeaders()))
+//                    .retrieve()
+//                    .body(MidtransResponse.class);
+        }
+
+        throw new ValidateException("Invalid Transaction Status!");
     }
 }

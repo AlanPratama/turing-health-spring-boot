@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/transactions")
 public class TransactionController {
     private final TransactionService transactionService;
 
@@ -63,6 +63,23 @@ public class TransactionController {
         return Response.renderJson(
                 transactionService.changeStatusToAccepted(orderId),
                 "Transaction Status Changed Successfully!"
+        );
+    }
+
+
+    @GetMapping
+    public ResponseEntity<?> getAllTransaction  () {
+        return Response.renderJson(
+                transactionService.getAllTransaction(),
+                "Transaction Fetched Successfully!"
+        );
+    }
+
+    @GetMapping("{orderId}")
+    public ResponseEntity<?> getOneTransaction(@PathVariable String orderId) {
+        return Response.renderJson(
+                transactionService.getOneTransaction(orderId),
+                "Transaction Fetched Successfully!"
         );
     }
 

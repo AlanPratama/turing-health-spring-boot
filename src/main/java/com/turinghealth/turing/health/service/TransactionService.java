@@ -5,6 +5,8 @@ import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionDTO;
 import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionRequestDTO;
 import com.turinghealth.turing.health.utils.dto.transactionDTO.TransactionResiCodeDTO;
 
+import java.util.List;
+
 public interface TransactionService {
 
     TransactionDTO create(TransactionRequestDTO request);
@@ -13,5 +15,7 @@ public interface TransactionService {
     TransactionDTO changeStatusToSent(String orderId, TransactionResiCodeDTO resiCode);
     TransactionDTO changeStatusToAccepted(String orderId);
 
+    List<TransactionDTO> getAllTransaction();
+    TransactionDTO getOneTransaction(String orderId);
 
 }

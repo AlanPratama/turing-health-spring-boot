@@ -134,6 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
             OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
 
             return TransactionDTO.builder()
+                    .id(updatedOrderDetail.getId())
                     .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
                     .addressUser(updatedOrderDetail.getAddressUser())
                     .total(updatedOrderDetail.getTotal())
@@ -158,6 +159,8 @@ public class TransactionServiceImpl implements TransactionService {
         OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
 
         if (Objects.equals(midtrans.getTransactionStatus(), "pending") && orderDetail.getStatus().equals(TransactionStatus.PENDING)) {
+            midtransService.updateTransactionStatusToCanceled(orderId);
+
             orderDetail.setStatus(TransactionStatus.CANCELED);
 
             OrderDetail updatedOrderDetail = orderDetailRepository.save(orderDetail);
@@ -166,6 +169,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .collect(Collectors.toList());
 
             return TransactionDTO.builder()
+                    .id(updatedOrderDetail.getId())
                     .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
                     .addressUser(updatedOrderDetail.getAddressUser())
                     .total(updatedOrderDetail.getTotal())
@@ -203,6 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .collect(Collectors.toList());
 
             return TransactionDTO.builder()
+                    .id(updatedOrderDetail.getId())
                     .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
                     .addressUser(updatedOrderDetail.getAddressUser())
                     .total(updatedOrderDetail.getTotal())
@@ -217,7 +222,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .build();
         }
 
-        throw new ValidateException("Invalid Transaction Status!");
+        throw new ValidateException("Please Pay The Bill!");
     }
 
     @Override
@@ -242,6 +247,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .collect(Collectors.toList());
 
             return TransactionDTO.builder()
+                    .id(updatedOrderDetail.getId())
                     .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
                     .addressUser(updatedOrderDetail.getAddressUser())
                     .total(updatedOrderDetail.getTotal())
@@ -270,8 +276,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (user.getRole() == Role.ADMIN) throw new ValidateException("Invalid Role!");
 
-        MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
         OrderDetail orderDetail = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
+        MidtransResponse midtrans = midtransService.fetchTransaction(orderId);
 
         if (Objects.equals(midtrans.getTransactionStatus(), "settlement") && orderDetail.getStatus().equals(TransactionStatus.SENT)) {
             orderDetail.setStatus(TransactionStatus.ACCEPTED);
@@ -282,6 +288,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .collect(Collectors.toList());
 
             return TransactionDTO.builder()
+                    .id(updatedOrderDetail.getId())
                     .user(UserMapper.accountDTO(updatedOrderDetail.getUser()))
                     .addressUser(updatedOrderDetail.getAddressUser())
                     .total(updatedOrderDetail.getTotal())
@@ -297,5 +304,77 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         throw new ValidateException("Invalid Transaction Status!");
+    }
+
+    @Override
+    public List<TransactionDTO> getAllTransaction() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        List<TransactionDTO> transactionDTOList = new ArrayList<>();
+
+        for (OrderDetail transaction : user.getOrderDetails()) {
+            List<Product> productList = new ArrayList<>();
+
+            for (OrderItem orderItem : transaction.getOrderItems()) {
+                productList.add(orderItem.getProduct());
+            }
+
+            TransactionDTO transactionDTO = new TransactionDTO();
+            transactionDTO.setId(transaction.getId());
+            transactionDTO.setUser(UserMapper.accountDTO(transaction.getUser()));
+            transactionDTO.setAddressUser(transaction.getAddressUser());
+            transactionDTO.setTotal(transaction.getTotal());
+            transactionDTO.setMessage(transaction.getMessage());
+            transactionDTO.setPaymentType(transaction.getPaymentType());
+            transactionDTO.setResiCode(transaction.getResiCode());
+            transactionDTO.setVaNumber(transaction.getVaNumber());
+            transactionDTO.setExpiryTime(transaction.getExpiryTime());
+            transactionDTO.setStatus(transaction.getStatus());
+            transactionDTO.setCreatedAt(transaction.getCreatedAt());
+            transactionDTO.setProducts(productList);
+
+
+            transactionDTOList.add(transactionDTO);
+        }
+
+        return transactionDTOList;
+    }
+
+    @Override
+    public TransactionDTO getOneTransaction(String orderId) {
+        OrderDetail transaction = orderDetailRepository.findById(Integer.parseInt(orderId)).orElseThrow(() -> new NotFoundException("Transaction Not Found!"));
+
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
+
+        if (user.getRole() != Role.ADMIN) {
+            if (!Objects.equals(transaction.getUser().getId(), user.getId())) {
+                throw new ValidateException("Transaction Is Not Your!");
+            }
+        }
+
+        List<Product> productList = new ArrayList<>();
+
+        for (var transactionItems : transaction.getOrderItems()) {
+            productList.add(transactionItems.getProduct());
+        }
+
+        return TransactionDTO.builder()
+                .id(transaction.getId())
+                .user(UserMapper.accountDTO(transaction.getUser()))
+                .addressUser(transaction.getAddressUser())
+                .total(transaction.getTotal())
+                .message(transaction.getMessage())
+                .paymentType(transaction.getPaymentType())
+                .resiCode(transaction.getResiCode())
+                .vaNumber(transaction.getVaNumber())
+                .expiryTime(transaction.getExpiryTime())
+                .status(transaction.getStatus())
+                .createdAt(transaction.getCreatedAt())
+                .products(productList)
+                .build();
     }
 }
