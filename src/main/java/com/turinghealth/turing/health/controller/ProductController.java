@@ -62,11 +62,12 @@ public class ProductController {
     }
 
 
-    @PutMapping(consumes = "multipart/form-data")
+    @PutMapping(consumes = "multipart/form-data", value = "{id}")
     @Validated
     public ResponseEntity<?> update(
             @Valid @ModelAttribute ProductRequestDTO request,
             Errors errors,
+            @PathVariable Integer id,
             @RequestPart("file")MultipartFile multipartFile
     ) throws IOException {
         if (errors.hasErrors()) {
@@ -75,7 +76,7 @@ public class ProductController {
         }
 
         return Response.renderJson(
-                productService.create(request, multipartFile),
+                productService.update(request, multipartFile, id),
                 "Product Updated Successfully!"
         );
     }

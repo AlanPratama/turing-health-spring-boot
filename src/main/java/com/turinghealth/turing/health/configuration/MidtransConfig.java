@@ -10,7 +10,7 @@ import java.util.Base64;
 @Configuration
 public class MidtransConfig {
 
-    private static final String serverKey = "SB-Mid-server-yoa0vkBbXKIyDdjiEmGDJOQU";
+    private static final String serverKey = "SB-Mid-server-mu_29ZNsP9StCc78IuGHnUii";
 
     @Bean
     public static HttpHeaders httpHeaders() {

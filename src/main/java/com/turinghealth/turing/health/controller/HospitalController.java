@@ -99,7 +99,11 @@ public class HospitalController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id){
         hospitalService.delete(id);
-        return ResponseEntity.status(HttpStatus.GONE).body("Hospital deleted");
+        return Response.renderJson(
+            null,
+                "Hospital Deleted",
+                HttpStatus.OK
+        );
     }
 
 }

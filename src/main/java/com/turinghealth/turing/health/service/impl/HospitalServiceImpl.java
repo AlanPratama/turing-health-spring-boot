@@ -46,7 +46,7 @@ public class HospitalServiceImpl implements HospitalService {
         private final RestTemplate restTemplate;
         private final UserRepository userRepository;
 
-        private String baseUrl = "https://dekontaminasi.com/api/id/covid19/hospitals";
+            private String baseUrl = "https://dekontaminasi.com/api/id/covid19/hospitals";
         public static String gmapUrl = "https://www.google.com/maps/place?q=";
     
         @Override

@@ -106,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setDescription(request.getDescription());
         product.setCategory(category);
+//        product.setImageLink(product.getImageLink());
 
         if (multipartFile != null && !multipartFile.isEmpty()) {
 

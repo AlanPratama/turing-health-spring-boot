@@ -222,7 +222,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .build();
         }
 
-        throw new ValidateException("Please Pay The Bill!");
+        throw new ValidateException("Invalid Transaction Status!");
     }
 
     @Override
