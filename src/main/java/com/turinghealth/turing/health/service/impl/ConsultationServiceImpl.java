@@ -105,8 +105,9 @@ public class ConsultationServiceImpl implements ConsultationService {
         final User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
-        UserMiddleware.isUser(user.getRole());
-        UserMiddleware.isDoctor(user.getRole());
+        if (user.getRole() == Role.ADMIN) {
+            throw new ValidateException("Invalid Role!");
+        }
 
         Specification<Consultation> spec = ConsultationSpecification.getSpecification(user);
         List<Consultation> consultations = consultationRepository.findAll(spec);
