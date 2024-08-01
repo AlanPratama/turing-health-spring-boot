@@ -144,6 +144,10 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = this.getOne(id);
 
+
+        productRepository.delete(product);
+
+
         if (product.getImageLink() != null && !product.getImageLink().isEmpty()) {
             String oldImageLink = product.getImageLink();
             String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf("/") + 1, oldImageLink.lastIndexOf("."));
@@ -151,6 +155,5 @@ public class ProductServiceImpl implements ProductService {
             cloudinary.uploader().destroy(oldPublicId, Map.of());
         }
 
-        productRepository.delete(product);
     }
 }

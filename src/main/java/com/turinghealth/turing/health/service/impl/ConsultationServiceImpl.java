@@ -38,10 +38,6 @@ public class ConsultationServiceImpl implements ConsultationService {
         final User member = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new AuthenticationException("Please Login / Register Again!"));
 
-//        if (member.getRole() != Role.MEMBER) {
-//            throw new ValidateException("Only Role Member Can Start Consultation");
-//        }
-
         UserMiddleware.isUser(member.getRole());
 
         User doctor = userRepository.findById(request.getDoctorId()).orElseThrow(() -> new NotFoundException("Doctor Not Found!"));
@@ -58,10 +54,13 @@ public class ConsultationServiceImpl implements ConsultationService {
                 .doctor(doctor)
                 .build();
 
+        Consultation createdConsul = consultationRepository.save(consultation);
+
         return ConsultationDTO.builder()
-                .consultationDate(consultation.getConsultationDate())
-                .consultationUrl(consultation.getConsultationUrl())
-                .accepted(consultation.isAccepted())
+                .id(createdConsul.getId())
+                .consultationDate(createdConsul.getConsultationDate())
+                .consultationUrl(createdConsul.getConsultationUrl())
+                .accepted(createdConsul.isAccepted())
                 .member(UserMapper.accountDTO(member))
                 .doctor(UserMapper.accountDTO(doctor))
                 .build();
@@ -91,6 +90,7 @@ public class ConsultationServiceImpl implements ConsultationService {
         Consultation acceptedConsultation = consultationRepository.save(consultation);
 
         return ConsultationDTO.builder()
+                .id(acceptedConsultation.getId())
                 .consultationDate(acceptedConsultation.getConsultationDate())
                 .consultationUrl(acceptedConsultation.getConsultationUrl())
                 .accepted(acceptedConsultation.isAccepted())
@@ -112,8 +112,11 @@ public class ConsultationServiceImpl implements ConsultationService {
         Specification<Consultation> spec = ConsultationSpecification.getSpecification(user);
         List<Consultation> consultations = consultationRepository.findAll(spec);
 
+//        List<Consultation> consultations = user.getConsultations();
+
         return consultations.stream()
                 .map(consultation -> ConsultationDTO.builder()
+                        .id(consultation.getId())
                         .consultationDate(consultation.getConsultationDate())
                         .consultationUrl(consultation.getConsultationUrl())
                         .accepted(consultation.isAccepted())

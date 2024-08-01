@@ -11,6 +11,8 @@ import java.util.Date;
 @Builder
 public class ConsultationDTO {
 
+    private Integer id;
+
     private Date consultationDate;
     private String consultationUrl;
     private boolean accepted;

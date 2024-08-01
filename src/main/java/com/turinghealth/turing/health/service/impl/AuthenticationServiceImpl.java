@@ -10,6 +10,7 @@ import com.turinghealth.turing.health.repository.TokenRepository;
 import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.AuthenticationService;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.authDTO.AuthResponseDTO;
 import com.turinghealth.turing.health.utils.dto.authDTO.LoginDTO;
 import com.turinghealth.turing.health.utils.dto.authDTO.RegisterDTO;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +63,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDTO register(RegisterDTO request) {
+        Optional<User> isExist = userRepository.findByEmail(request.getEmail());
+
+        if (isExist.isPresent()) throw new ValidateException("Email Is Not Available");
+
         User user = User.builder()
                 .name(request.getName())
                 .phone(request.getPhone())

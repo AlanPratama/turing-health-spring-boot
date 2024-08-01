@@ -5,12 +5,17 @@ import com.cloudinary.Transformation;
 import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Region;
 import com.turinghealth.turing.health.entity.meta.User;
+import com.turinghealth.turing.health.entity.meta.transaction.OrderDetail;
+import com.turinghealth.turing.health.entity.meta.transaction.OrderItem;
 import com.turinghealth.turing.health.middleware.UserMiddleware;
+import com.turinghealth.turing.health.repository.OrderDetailRepository;
+import com.turinghealth.turing.health.repository.OrderItemRepository;
 import com.turinghealth.turing.health.repository.RegionRepository;
 import com.turinghealth.turing.health.repository.UserRepository;
 import com.turinghealth.turing.health.service.UserService;
 import com.turinghealth.turing.health.utils.adviser.exception.AuthenticationException;
 import com.turinghealth.turing.health.utils.adviser.exception.NotFoundException;
+import com.turinghealth.turing.health.utils.adviser.exception.ValidateException;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserRequestDTO;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserResponseDTO;
 import com.turinghealth.turing.health.utils.dto.userDTO.UserUpdateDTO;
@@ -30,9 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +43,9 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final OrderDetailRepository orderDetailRepository;
+    private final OrderItemRepository orderItemRepository;
+//    private final PasswordEncoder passwordEncoder;
     private final Cloudinary cloudinary;
 
 //    @Override
@@ -126,6 +131,11 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
+
+        Optional<User> isExist = userRepository.findByEmail(request.getEmail());
+        if (!Objects.equals(request.getEmail(), user.getEmail()) && isExist.isPresent()) throw new ValidateException("Email Is Not Available");
+
+
         Region region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new NotFoundException("Region With ID " + request.getRegionId() + " Is Not Found!"));
 
@@ -177,6 +187,24 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User With ID " + id + " Is Not Found!"));
 
+        List<OrderDetail> orderDetailList = user.getOrderDetails();
+
+        for (OrderDetail ordetail : orderDetailList) {
+            List<OrderItem> orderItemList = ordetail.getOrderItems();
+
+
+//            for (OrderItem ordItem : orderItemList) {
+//                orderItemRepository.deleteById(ordItem.getId());
+//            }
+
+            orderItemRepository.deleteAll(orderItemList);
+
+            orderDetailRepository.delete(ordetail);
+
+        }
+
+        userRepository.delete(user);
+
         if (user.getUserImageLink() != null && !user.getUserImageLink().isEmpty()) {
             String oldImageLink = user.getUserImageLink();
             String oldPublicId = oldImageLink.substring(oldImageLink.lastIndexOf('/') + 1, oldImageLink.lastIndexOf('.'));
@@ -184,6 +212,5 @@ public class UserServiceImpl implements UserService {
             cloudinary.uploader().destroy(oldPublicId, Map.of());
         }
 
-        userRepository.delete(user);
     }
 }

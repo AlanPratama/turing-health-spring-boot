@@ -38,7 +38,7 @@ public class Product {
     private Category category;
 
     // CHILDREN
-//    @OneToMany
-//    @JsonIgnore
-//    private List<OrderItem> orderItems;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private List<OrderItem> orderItems;
 }

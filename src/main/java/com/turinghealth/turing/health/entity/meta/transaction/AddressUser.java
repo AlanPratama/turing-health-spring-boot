@@ -41,6 +41,7 @@ public class AddressUser {
 
 
     // ====== RELATIONAL ==============
+//    @ManyToOne(cascade = CascadeType.REMOVE)
     @ManyToOne
     @JsonIgnore
     private User user;

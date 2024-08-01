@@ -30,7 +30,7 @@ public class OrderItem {
 
     // ======= RELATIONAL ===================
     @ManyToOne(cascade = CascadeType.REMOVE)
-//    @JsonIgnore
+    @JoinColumn(name = "orderDetail_id", nullable = false)
     private OrderDetail orderDetail;
 
     @ManyToOne(cascade = CascadeType.REMOVE)

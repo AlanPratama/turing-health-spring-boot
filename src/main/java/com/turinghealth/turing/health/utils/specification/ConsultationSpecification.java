@@ -1,5 +1,6 @@
 package com.turinghealth.turing.health.utils.specification;
 
+import com.turinghealth.turing.health.entity.enums.Role;
 import com.turinghealth.turing.health.entity.meta.Consultation;
 import com.turinghealth.turing.health.entity.meta.User;
 import jakarta.persistence.criteria.Predicate;
@@ -15,7 +16,11 @@ public class ConsultationSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (user != null) {
-                predicates.add(criteriaBuilder.equal(root.get("user"), user));
+                if (user.getRole() == Role.MEMBER) {
+                    predicates.add(criteriaBuilder.equal(root.get("member"), user));
+                } else {
+                    predicates.add(criteriaBuilder.equal(root.get("doctor"), user));
+                }
             }
 
             return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));

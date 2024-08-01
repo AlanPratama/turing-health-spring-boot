@@ -35,7 +35,7 @@ public class User implements UserDetails {
     private String address;
     private String userImageLink;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -51,11 +51,11 @@ public class User implements UserDetails {
     private Region region;
 
     // CHILDREN
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
     List<AddressUser> addresses;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)

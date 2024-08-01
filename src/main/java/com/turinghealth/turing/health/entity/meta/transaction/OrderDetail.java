@@ -49,7 +49,8 @@ public class OrderDetail {
     private AddressUser addressUser;
 
     // CHILDREN
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "orderDetail", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<OrderItem> orderItems;
+
 }
